@@ -10,7 +10,7 @@ genai.configure(api_key='AIzaSyCcPpGKAqSkQg877obo93vLSTy6qfibhM4')
 co = cohere.Client('WR3YgBXki6mQHlO24JZyr5x1bGeVUwSCfeNC0HqI')
 
 def gemini_response(prompt):
-    # Adiciona delay de 10 segundos antes da requisição
+    # Adiciona delay antes da requisição
     time.sleep(1)
     
     model = genai.GenerativeModel('gemini-2.0-flash')
@@ -82,7 +82,7 @@ def conversa_entre_ias(max_turns=5):
         print(f"Gemini: {resposta_gemini}")
         conversa_completa += f"Gemini: {resposta_gemini}\n"
         
-        # Adiciona um delay de 20 segundos
+        # Adiciona um delay
         time.sleep(1)
         
         # Cohere responde
