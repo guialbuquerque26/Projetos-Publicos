@@ -21,6 +21,7 @@ Git e GitHub
 Confira alguns dos projetos que desenvolvi e disponibilizei no meu repositório de Projetos Públicos. Eles refletem meu progresso e dedicação ao aprendizado contínuo.
 
 📫 Como entrar em contato comigo:
+
 Email: albuquerque.oficce@gmail.com
 
-Contato:(85)987673955
+Contato: (85) 987673955
