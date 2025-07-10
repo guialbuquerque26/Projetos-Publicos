@@ -8,6 +8,7 @@ Sou um entusiasta da programação, atualmente focado em aprimorar minhas habili
 Atualmente, atuo como Suporte N2 em uma empresa de tecnologia, onde tive a oportunidade de desenvolver um sistema utilizando o framework Flask. Este sistema foi projetado para integrar plataformas internas e externas, facilitando a análise e resolução de chamados internos. A aplicação realiza a sincronização de dados entre os sistemas corporativos da empresa e serviços externos, como as plataformas de cobertura da Anatel, Claro, Vivo, entre outros.
 
 🚀 Tecnologias que estou aprendendo:
+
 HTML, CSS e JavaScript
 
 Python
