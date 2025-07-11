@@ -148,72 +148,113 @@ async def scraping_dinamico_rematch(steam_id):
             except Exception as e:
                 print(f"⚠️ Erro ao capturar nome: {e}")
             
-            # 2. CAPTURAR GRADE/NOTA (qualquer padrão que apareça)
+            # 2. CAPTURAR GRADE/NOTA (usando seletor HTML específico)
             try:
-                # Buscar qualquer padrão de grade/nota no texto com melhor regex
-                grade_patterns = [
-                    r'\b([S][+\-]?)\b',     # S, S+, S-
-                    r'\b([A-F][+\-]?)\b',   # A+, A, A-, B+, B, B-, etc.
-                    r'\b([A-F][+\-])\b',    # Explicitamente A+, A-, B+, B-, etc.
-                    r'([S][+\-])',          # S+, S- sem word boundaries
-                    r'([A-F][+\-])',        # A+, A-, B+, B-, etc. sem word boundaries
-                    r'Grade:\s*([S][+\-]?)',     # Grade: S+
-                    r'Grade:\s*([A-F][+\-]?)',   # Grade: A+
-                    r'Nota:\s*([S][+\-]?)',      # Nota: S+
-                    r'Nota:\s*([A-F][+\-]?)',    # Nota: A+
-                ]
-                
                 grade_found = None
-                all_matches = []
                 
-                for pattern in grade_patterns:
-                    matches = re.findall(pattern, page_text, re.IGNORECASE)
-                    all_matches.extend(matches)
-                    print(f"   Padrão '{pattern}': {matches[:5]}")  # Debug
+                # Primeira tentativa: buscar por TODOS os spans com classe svelte-bvxqti
+                print("🔍 Buscando grade em todos os spans com classe 'svelte-bvxqti'...")
+                try:
+                    grade_elements = await page.query_selector_all('span.svelte-bvxqti')
+                    print(f"📊 Encontrados {len(grade_elements)} spans com classe 'svelte-bvxqti'")
                     
-                    for match in matches:
-                        # Validar se parece uma grade válida
-                        if match and 1 <= len(match) <= 3:
-                            # Priorizar grades com modificadores
-                            if '+' in match or '-' in match:
-                                grade_found = match.upper()
-                                print(f"📊 Grade com modificador encontrada: {grade_found}")
+                    for i, element in enumerate(grade_elements):
+                        element_text = await element.text_content()
+                        element_style = await element.get_attribute('style')
+                        
+                        print(f"   Span {i+1}: texto='{element_text}', style='{element_style}'")
+                        
+                        if element_text and element_text.strip():
+                            text = element_text.strip().upper()
+                            # Verificar se é uma grade válida (S+, S-, S, A+, A-, A, B+, etc.)
+                            if re.match(r'^[S][+\-]?$|^[A-F][+\-]?$', text):
+                                grade_found = text
+                                print(f"📊 GRADE ENCONTRADA NO SPAN {i+1}: {grade_found}")
                                 break
-                            elif not grade_found:  # Se não achou ainda, usar sem modificador
-                                grade_found = match.upper()
-                                print(f"📊 Grade base encontrada: {grade_found}")
                     
-                    if grade_found and ('+' in grade_found or '-' in grade_found):
-                        break  # Se encontrou com modificador, para de procurar
+                    if not grade_found:
+                        print("⚠️ Nenhuma grade válida encontrada nos spans 'svelte-bvxqti'")
+                except Exception as span_error:
+                    print(f"⚠️ Erro ao buscar spans específicos: {span_error}")
                 
-                # Se não encontrou nada, tentar buscar padrões mais específicos
-                if not grade_found and all_matches:
-                    # Procurar especificamente por padrões S+, A+, etc no texto
-                    specific_patterns = [
-                        r'(S\+)', r'(S\-)', r'(A\+)', r'(A\-)', 
-                        r'(B\+)', r'(B\-)', r'(C\+)', r'(C\-)',
-                        r'(D\+)', r'(D\-)', r'(F\+)', r'(F\-)'
+                # Segunda tentativa: buscar por qualquer span que contenha grades válidas
+                if not grade_found:
+                    print("🔍 Buscando grade em todos os spans...")
+                    try:
+                        all_spans = await page.query_selector_all('span')
+                        for span in all_spans:
+                            span_text = await span.text_content()
+                            if span_text and span_text.strip():
+                                text = span_text.strip().upper()
+                                # Verificar se é uma grade válida
+                                if re.match(r'^[S][+\-]?$|^[A-F][+\-]?$', text):
+                                    grade_found = text
+                                    print(f"📊 GRADE ENCONTRADA EM SPAN GENÉRICO: {grade_found}")
+                                    break
+                        if not grade_found:
+                            print("⚠️ Nenhuma grade válida encontrada nos spans")
+                    except Exception as spans_error:
+                        print(f"⚠️ Erro ao buscar spans genéricos: {spans_error}")
+                
+                # Terceira tentativa: buscar qualquer elemento com cor específica (fallback)
+                if not grade_found:
+                    print("🔍 Buscando grade por cor específica...")
+                    try:
+                        # Buscar elementos com cor verde específica do exemplo
+                        colored_elements = await page.query_selector_all('[style*="color: rgb(58, 242, 178)"]')
+                        for element in colored_elements:
+                            element_text = await element.text_content()
+                            if element_text and element_text.strip():
+                                text = element_text.strip().upper()
+                                if re.match(r'^[S][+\-]?$|^[A-F][+\-]?$', text):
+                                    grade_found = text
+                                    print(f"📊 GRADE ENCONTRADA POR COR: {grade_found}")
+                                    break
+                        if not grade_found:
+                            print("⚠️ Nenhuma grade válida encontrada por cor")
+                    except Exception as color_error:
+                        print(f"⚠️ Erro ao buscar por cor: {color_error}")
+                
+                # Última tentativa: regex no texto (fallback)
+                if not grade_found:
+                    print("🔍 Última tentativa: regex no texto...")
+                    grade_patterns = [
+                        r'\b([S][+\-])\b',      # S+, S-
+                        r'\b([A-F][+\-])\b',    # A+, A-, B+, B-, etc.
+                        r'\b([S])\b',           # S
+                        r'\b([A-F])\b',         # A, B, C, D, F
                     ]
                     
-                    for pattern in specific_patterns:
-                        match = re.search(pattern, page_text)
-                        if match:
-                            grade_found = match.group(1)
-                            print(f"📊 Grade específica encontrada: {grade_found}")
-                            break
+                    for pattern in grade_patterns:
+                        matches = re.findall(pattern, page_text, re.IGNORECASE)
+                        if matches:
+                            # Pegar o primeiro match válido
+                            for match in matches:
+                                if match and 1 <= len(match) <= 3:
+                                    grade_found = match.upper()
+                                    print(f"📊 GRADE ENCONTRADA POR REGEX: {grade_found}")
+                                    break
+                            if grade_found:
+                                break
                 
                 if grade_found:
                     dados_dinamicos['player_info']['grade'] = grade_found
-                    print(f"📊 GRADE FINAL ENCONTRADA: {grade_found}")
+                    print(f"📊 GRADE FINAL CAPTURADA: {grade_found}")
                 else:
-                    print("⚠️ Grade não identificada")
-                    print(f"🔍 Todos os matches encontrados: {all_matches[:10]}")
-                    # Mostrar uma amostra do texto para debug
-                    sample_text = page_text[:1000].replace('\n', ' ')
-                    print(f"🔍 Amostra do texto: {sample_text[:200]}...")
+                    print("⚠️ Grade não identificada com nenhum método")
+                    # Debug: mostrar alguns spans para análise
+                    try:
+                        print("🔍 DEBUG - Primeiros 10 spans encontrados:")
+                        debug_spans = await page.query_selector_all('span')
+                        for i, span in enumerate(debug_spans[:10]):
+                            span_text = await span.text_content()
+                            span_html = await span.inner_html()
+                            print(f"   Span {i+1}: '{span_text}' | HTML: {span_html[:50]}...")
+                    except:
+                        print("⚠️ Não foi possível mostrar debug dos spans")
                     
             except Exception as e:
-                print(f"⚠️ Erro ao capturar grade: {e}")
+                print(f"⚠️ Erro geral ao capturar grade: {e}")
             
             # 3. CAPTURAR TIPO DE JOGADOR (qualquer palavra + Player)
             try:

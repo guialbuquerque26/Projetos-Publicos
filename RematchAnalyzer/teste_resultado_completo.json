@@ -1,0 +1,123 @@
+{
+  "timestamp": "2025-07-11 08:00:34",
+  "tests": {
+    "api_test": {
+      "player1": {
+        "status": "success",
+        "player_name": "NSG | wellio",
+        "matches": 1001,
+        "goals": 1108,
+        "wins": 817,
+        "mvps": 303,
+        "shots": 5064,
+        "win_rate": 81.6,
+        "shot_accuracy": 21.9
+      },
+      "player2": {
+        "status": "success",
+        "player_name": "OPB | JadokaDokaDoka",
+        "matches": 585,
+        "goals": 189,
+        "wins": 416,
+        "mvps": 169,
+        "shots": 2284,
+        "win_rate": 71.1,
+        "shot_accuracy": 8.3
+      }
+    },
+    "scraping_test": {
+      "player1": {
+        "status": "success",
+        "display_name": "wellio",
+        "grade": "A+",
+        "player_type": "LFT Player",
+        "rank": "Elite",
+        "win_rate_page": null,
+        "shot_accuracy_page": null,
+        "playing_style": {
+          "attack": 32,
+          "playmaking": 13,
+          "finishing": 63,
+          "defense": 12,
+          "goalkeeper": 2,
+          "impact": 48
+        }
+      },
+      "player2": {
+        "status": "success",
+        "display_name": "OPB | JadokaDokaDoka",
+        "grade": "B",
+        "player_type": "LFT Player",
+        "rank": "Elite",
+        "win_rate_page": null,
+        "shot_accuracy_page": null,
+        "playing_style": {
+          "attack": 14,
+          "playmaking": 18,
+          "finishing": 68,
+          "defense": 15,
+          "goalkeeper": 4,
+          "impact": 43
+        }
+      }
+    },
+    "integration_test": {
+      "player1": {
+        "status": "success",
+        "api_vs_scraping": {
+          "win_rate_match": false,
+          "shot_accuracy_match": false,
+          "api_win_rate": 81.6,
+          "scraping_win_rate": null,
+          "api_shot_accuracy": 21.9,
+          "scraping_shot_accuracy": null
+        },
+        "unique_scraping_data": {
+          "grade": "A+",
+          "player_type": "LFT Player",
+          "rank": "Elite",
+          "playing_style": {
+            "attack": 32,
+            "playmaking": 13,
+            "finishing": 63,
+            "defense": 12,
+            "goalkeeper": 2,
+            "impact": 48
+          }
+        }
+      },
+      "player2": {
+        "status": "success",
+        "api_vs_scraping": {
+          "win_rate_match": false,
+          "shot_accuracy_match": false,
+          "api_win_rate": 71.1,
+          "scraping_win_rate": null,
+          "api_shot_accuracy": 8.3,
+          "scraping_shot_accuracy": null
+        },
+        "unique_scraping_data": {
+          "grade": "B",
+          "player_type": "LFT Player",
+          "rank": "Elite",
+          "playing_style": {
+            "attack": 14,
+            "playmaking": 18,
+            "finishing": 68,
+            "defense": 15,
+            "goalkeeper": 4,
+            "impact": 43
+          }
+        }
+      }
+    }
+  },
+  "summary": {
+    "total_tests": 6,
+    "total_success": 6,
+    "success_rate": 100.0,
+    "api_success": 2,
+    "scraping_success": 2,
+    "integration_success": 2
+  }
+}
